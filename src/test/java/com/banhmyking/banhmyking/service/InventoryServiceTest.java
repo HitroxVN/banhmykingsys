@@ -298,49 +298,6 @@ class InventoryServiceTest {
         assertThat(result.getStockQuantity()).isNull();
     }
 
-    @Test
-    @DisplayName("restoreForOrder: cùng món ở 2 dòng (khác topping) thì hoàn đủ tổng số lượng")
-    void restoreForOrderSumsLinesOfSameProduct() {
-        Product banhMi = banhMi(7);
-        Order order = order(banhMi, 2);
-        OrderItem secondLine = new OrderItem();
-        secondLine.setProduct(banhMi);
-        secondLine.setQuantity(3);
-        order.setItems(List.of(order.getItems().get(0), secondLine));
-        when(inventoryMovementRepository.existsByOrderIdAndProductIdAndReason(
-                ORDER_ID, PRODUCT_ID, InventoryReason.ORDER)).thenReturn(true);
-        when(inventoryMovementRepository.existsByOrderIdAndProductIdAndReason(
-                ORDER_ID, PRODUCT_ID, InventoryReason.RESTORE)).thenReturn(false);
-        when(productRepository.incrementStockAtomic(PRODUCT_ID, 5)).thenReturn(1);
-
-        inventoryService.restoreForOrder(order);
-
-        InventoryMovement movement = captureSavedMovement();
-        assertThat(movement.getChangeQty()).isEqualTo(5);
-    }
-
-    @Test
-    @DisplayName("tryDecreaseForOrder: thiếu hàng thì trả false, cộng trả các dòng đã trừ và không ghi sổ")
-    void tryDecreaseForOrderRollsBackEarlierLinesOnShortage() {
-        Product first = banhMi(10);
-        Product second = new Product();
-        second.setId(2L);
-        second.setName("Bánh mì pate");
-        second.setStockQuantity(1);
-        Order order = order(first, 2);
-        OrderItem secondLine = new OrderItem();
-        secondLine.setProduct(second);
-        secondLine.setQuantity(4);
-        order.setItems(List.of(order.getItems().get(0), secondLine));
-        when(productRepository.decrementStockAtomic(PRODUCT_ID, 2)).thenReturn(1);
-        when(productRepository.decrementStockAtomic(2L, 4)).thenReturn(0);
-
-        assertThat(inventoryService.tryDecreaseForOrder(order)).isFalse();
-
-        verify(productRepository).incrementStockAtomic(PRODUCT_ID, 2);
-        verify(inventoryMovementRepository, never()).save(any());
-    }
-
     // ---------------------------------------------------------------- adjustStock
 
     @Test

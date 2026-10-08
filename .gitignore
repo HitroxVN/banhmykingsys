@@ -42,3 +42,8 @@ TESTCASES.md
 .env
 uploads/
 private-uploads/
+/docs/
+
+# Secret cho docker compose (đối chiếu .env.example) — dòng .env ở trên đã phủ cả / và frontend/
+docker-compose.override.yml
+

@@ -1,0 +1,30 @@
+# Loại khỏi build context: giữ image nhỏ và không đóng gói file local.
+# Ưu tiên "loại trừ theo mẫu" hơn là liệt kê từng thứ cần giữ — thêm file mới
+# vào repo sẽ tự được đóng gói, không phải sửa file này.
+
+.git
+.github
+.idea
+.claude
+docs
+markdown
+uploads
+private-uploads
+
+# Frontend build riêng bằng frontend/Dockerfile — node_modules của máy khỏi
+# được gửi lên context backend.
+frontend
+
+# Config local chứa secret — chỉ .example được phép lọt vào image.
+src/main/resources/application-dev.properties
+
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+.gitignore
+.gitattributes
+HELP.md
+SETUP.md
+*.iml
+*.log

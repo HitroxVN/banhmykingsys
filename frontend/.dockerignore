@@ -1,0 +1,22 @@
+# Không gửi node_modules/.env/dist vào build context — npm ci chạy lại trong image
+# và .env local chứa VietQR của máy bạn, không nên nằm trong layer build.
+node_modules
+dist
+dist-ssr
+
+# Build args đã thay thế cho các biến này
+.env
+.env.local
+.env.*.local
+
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+Dockerfile
+.dockerignore
+README.md
+example.html
+*.log

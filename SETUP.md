@@ -2,6 +2,9 @@
 
 > Cho thành viên mới vào dự án. Làm theo từng bước, xong mục **Verify** là máy bạn sẵn sàng code.
 
+> **Không muốn cài JDK/MySQL/Node?** Dựng bằng Docker: `cp .env.example .env` rồi
+> `docker compose up --build` — xem [DEPLOY.md](DEPLOY.md).
+
 ---
 
 ## 1. Yêu cầu

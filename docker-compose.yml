@@ -1,0 +1,65 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?thiếu DB_PASSWORD trong .env}
+      MYSQL_DATABASE: banhmyking
+      TZ: Asia/Ho_Chi_Minh
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: demo
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/banhmyking?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?thiếu DB_PASSWORD trong .env}
+      SERVER_PORT: 8080
+      JWT_SECRET: ${JWT_SECRET:?thiếu JWT_SECRET trong .env}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:8080}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      SEPAY_API_KEY: ${SEPAY_API_KEY:-}
+      APP_TRUST_FORWARDED_FOR: "true"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+      - private-uploads:/app/private-uploads
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VIETQR_BANK_ID: ${VIETQR_BANK_ID:-}
+        VIETQR_ACCOUNT_NO: ${VIETQR_ACCOUNT_NO:-}
+        VIETQR_ACCOUNT_NAME: ${VIETQR_ACCOUNT_NAME:-}
+        VIETQR_TEMPLATE: ${VIETQR_TEMPLATE:-}
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  uploads:
+  private-uploads:
